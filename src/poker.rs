@@ -39,7 +39,7 @@ pub enum Rank {
 
 impl std::fmt::Display for Rank {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "")
     }
 }
 
@@ -48,7 +48,7 @@ pub struct Card(Suit, Rank);
 
 impl std::fmt::Display for Card {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}, {})", self.0, self.1)
+        write!(f, "")
     }
 }
 
@@ -90,65 +90,18 @@ pub struct Hand {
 
 pub fn new_hand(players: Vec<Player>, deck: Deck) -> Hand {
     Hand {
-        players: players
-            .into_iter()
-            .map(|p| (p, PlayerState::WaitingToBeDealt))
-            .collect(),
+        players: vec![],
         pot: 0,
         deck,
     }
 }
 
-// Add dealer move enum -> Hand, Flop, River, Turn
-
 pub fn deal(hand: Hand) -> Hand {
-    let mut dealing_deck = hand.deck.clone();
-    let mut players: Vec<(Player, PlayerState)> = hand
-        .players
-        .iter()
-        .map(|p| {
-            let cards: Vec<Card> = dealing_deck.drain(0..2).collect();
-            (
-                p.0.clone(),
-                PlayerState::Dealt(HoleCards(
-                    cards.first().unwrap().clone(),
-                    cards.last().unwrap().clone(),
-                )),
-            )
-        })
-        .collect();
-
-    if let Some(first_player) = players.first_mut() {
-        if let PlayerState::Dealt(holecards) = &first_player.1 {
-            first_player.1 = PlayerState::Active(holecards.clone());
-        }
-    }
-
-    Hand {
-        players,
-        pot: hand.pot,
-        deck: dealing_deck,
-    }
+    hand
 }
 
 pub fn play(hand: Hand, mv: PlayerMove) -> Hand {
-    match mv {
-        PlayerMove::Bet(amount) | PlayerMove::Raise(amount) => Hand {
-            players: hand.players,
-            pot: hand.pot + amount,
-            deck: hand.deck,
-        },
-        PlayerMove::Check => hand,
-        PlayerMove::Fold => Hand {
-            players: hand
-                .players
-                .iter()
-                .map(|p| (p.0.clone(), PlayerState::Folded))
-                .collect(),
-            pot: hand.pot,
-            deck: hand.deck,
-        },
-    }
+    hand
 }
 
 // Unused but potentially interesting follow-on structures
